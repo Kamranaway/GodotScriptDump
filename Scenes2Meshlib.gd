@@ -1,15 +1,19 @@
-extends Node
+@tool
+extends EditorScript
 
-export(String) var path = ""
-export(String) var file_type = "FBX"
-export(String) var lib_name = ""
+@export var path = "res://assets/models/"
+@export var file_type = "FBX"
+@export var lib_name = "meshlib"
+@export var write_path = "res://assets/"
 
-func _ready():
+var meshes = []
+
+func _run():
 	var meshlib = MeshLibrary.new()
+	var tilemap = TileMap.new()
 	
 	var files = []
-	var dir = Directory.new()
-	dir.open(path)
+	var dir = DirAccess.open(path)
 	dir.list_dir_begin()
 	print("Getting directory...")
 	while (true):
@@ -22,19 +26,40 @@ func _ready():
 	var index = 0
 	
 	print("Finding scenes...")
+	
 	for file in files:
 		var loaded_scene = load(path+file)
-		loaded_scene = loaded_scene.instance()
+		loaded_scene = loaded_scene.instantiate()
 		meshlib.create_item(index)
 		meshlib.set_item_name(index, file.get_basename())
+		
 		for child in get_all_nodes(loaded_scene):
-			if child is MeshInstance:
+			if child is MeshInstance3D:
+				child.create_convex_collision(true, false)
+				var new_form = child.transform.scaled(Vector3(0.01, 0.01, 0.01))
+				new_form = new_form.translated(Vector3(0, -.005, 0))
 				meshlib.set_item_mesh(index, child.mesh)
 				
+				meshlib.set_item_mesh_transform(index, new_form)
+				meshes.append(child.mesh)
+				var collision = null
+
+				for child_j in get_all_nodes(loaded_scene):
+					if child_j is CollisionShape3D:
+						collision = child_j
+						break
+				
+				meshlib.set_item_shapes(index, [collision.get_shape()])
 		loaded_scene.free()
 		index += 1
+		
+	var texes = get_editor_interface().make_mesh_previews(meshes, 100)
+	var i = 0
+	for tex in texes:
+		meshlib.set_item_preview(i, tex)
+		i += 1
 	print("Loaded: ", str(index+1), " scenes")
-	ResourceSaver.save("res://" + lib_name + ".meshlib", meshlib)
+	ResourceSaver.save(meshlib, "res://" + lib_name + ".meshlib")
 	print("Saving Complete")
 
 var nodes = []
