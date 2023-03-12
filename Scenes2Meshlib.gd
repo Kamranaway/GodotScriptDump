@@ -1,9 +1,9 @@
 @tool
 extends EditorScript
 
-@export var path = "res://assets/models/"
+@export var path = "res://lowpolykitdungeon/lowpolykitdungeon/fbx/"
 @export var file_type = "FBX"
-@export var lib_name = "meshlib"
+@export var lib_name = "scifi_kit_alpha"
 @export var write_path = "res://assets/"
 
 var meshes = []
@@ -35,9 +35,15 @@ func _run():
 		
 		for child in get_all_nodes(loaded_scene):
 			if child is MeshInstance3D:
-				child.create_convex_collision(true, false)
-				meshlib.set_item_mesh(index, child.mesh)
 				
+				#Generate collision
+				child.create_trimesh_collision()
+				
+				#var new_form = child.transform.scaled(Vector3(0.01, 0.01, 0.01))
+				#new_form = new_form.translated(Vector3(0, -.005, 0))
+				#meshlib.set_item_mesh_transform(index, new_form)
+				
+				meshlib.set_item_mesh(index, child.mesh)
 				meshes.append(child.mesh)
 				var collision = null
 
