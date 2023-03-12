@@ -38,7 +38,6 @@ func _run():
 				child.create_convex_collision(true, false)
 				meshlib.set_item_mesh(index, child.mesh)
 				
-				meshlib.set_item_mesh_transform(index, new_form)
 				meshes.append(child.mesh)
 				var collision = null
 
