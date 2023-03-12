@@ -36,8 +36,6 @@ func _run():
 		for child in get_all_nodes(loaded_scene):
 			if child is MeshInstance3D:
 				child.create_convex_collision(true, false)
-				var new_form = child.transform.scaled(Vector3(0.01, 0.01, 0.01))
-				new_form = new_form.translated(Vector3(0, -.005, 0))
 				meshlib.set_item_mesh(index, child.mesh)
 				
 				meshlib.set_item_mesh_transform(index, new_form)
